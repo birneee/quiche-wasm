@@ -155,6 +155,27 @@ fn get_boringssl_cmake_config() -> cmake::Config {
             _ => boringssl_cmake,
         },
 
+        "wasi" => match arch.as_ref() {
+            "wasm32" => {
+                let wasi_sdk = std::env::var("WASI_SDK_PATH").expect("WASI_SDK_PATH has to be set");
+                let wasi_sdk = std::path::Path::new(&wasi_sdk);
+                assert!(wasi_sdk.exists());
+                let toolchain_file = wasi_sdk.join("share/cmake/wasi-sdk-p2.cmake");
+                assert!(toolchain_file.exists());
+                boringssl_cmake.define("CMAKE_TOOLCHAIN_FILE", toolchain_file);
+                boringssl_cmake.define("CMAKE_BUILD_TYPE", "Release");
+                boringssl_cmake.define("CMAKE_SYSTEM_NAME", "Generic");
+                boringssl_cmake.define("ARCH", "generic");
+                boringssl_cmake.define("OPENSSL_NO_ASM", "ON");
+                boringssl_cmake.cflag("-DFREEBSD_GETRANDOM");
+                boringssl_cmake.cflag("-DWASM_GETRANDOM");
+                boringssl_cmake
+            },
+            _ => {
+                panic!("unknown arch");
+            }
+        },
+
         _ => {
             // Configure BoringSSL for building on 32-bit non-windows platforms.
             if arch == "x86" && os != "windows" {
@@ -232,7 +253,10 @@ fn main() {
             cfg.build_target("crypto").build().display().to_string()
         });
 
-        println!("cargo:rustc-link-arg=-Wl,-rpath,{}", bssl_dir);
+        let target_arch = std::env::var("CARGO_CFG_TARGET_ARCH").unwrap();
+        if target_arch != "wasm32" {
+            println!("cargo:rustc-link-arg=-Wl,-rpath,{}", bssl_dir);
+        }
 
         let build_path = get_boringssl_platform_output_path();
         let mut build_dir = format!("{bssl_dir}/build/{build_path}");

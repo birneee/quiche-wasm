@@ -28,6 +28,9 @@ use std::cmp;
 
 use std::io;
 
+#[cfg(target_family = "wasm")]
+use crate::mio_wasi_polyfill::mio;
+
 /// For Linux, try to detect GSO is available.
 #[cfg(target_os = "linux")]
 pub fn detect_gso(socket: &mio::net::UdpSocket, segment_size: usize) -> bool {
