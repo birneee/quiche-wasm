@@ -186,7 +186,7 @@ impl RecoveryEpoch {
             }
         }
 
-        self.drain_acked_and_lost_packets(now - rtt_stats.rtt());
+        self.drain_acked_and_lost_packets(now.checked_sub(rtt_stats.rtt()).unwrap_or(now));
 
         AckedDetectionResult {
             acked_bytes,

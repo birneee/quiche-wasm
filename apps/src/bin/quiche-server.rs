@@ -49,6 +49,9 @@ use quiche_apps::common::*;
 
 use quiche_apps::sendto::*;
 
+#[cfg(target_family = "wasm")]
+use quiche_apps::mio_wasi_polyfill::mio;
+
 const MAX_BUF_SIZE: usize = 65507;
 
 const MAX_DATAGRAM_SIZE: usize = 1350;

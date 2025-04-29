@@ -37,6 +37,9 @@ use std::cell::RefCell;
 
 use ring::rand::*;
 
+#[cfg(target_family = "wasm")]
+use crate::mio_wasi_polyfill::mio;
+
 const MAX_DATAGRAM_SIZE: usize = 1350;
 
 #[derive(Debug)]
