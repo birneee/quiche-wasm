@@ -62,7 +62,7 @@ pkg-config = { version = "0.3", optional = true }
 cdylib-link-lines = { version = "0.1", optional = true }
 
 [dependencies]
-either = { version = "1.8", default-features = false }
+either = { version = "1.15", default-features = false }
 log = { version = "0.4", features = ["std"] }
 libc = "0.2"
 libm = "0.2"
